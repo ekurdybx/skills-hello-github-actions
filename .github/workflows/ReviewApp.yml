@@ -1,0 +1,29 @@
+name: review-app
+on:
+ pull_request:
+    branches:
+    - main
+    tags:
+    - "*"
+    types:
+    - opened
+    - synchronize
+    - reopened
+ pull_request_review:
+    branches:
+    - main
+    tags:
+    - "*"
+ 
+jobs:
+ review-app:
+    if: |
+      (github.event_name == 'pull_request_review' && github.event.review.state != 'commented') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
+    name: "Call ReviewApp"
+    uses: intel-innersource/frameworks.actions.pact.review-app/.github/workflows/ReviewApp.yml@v1.1.1
+    secrets:
+      review_bot_token: ${{ secrets.REVIEW_BOT_TOKEN }}
+    with:
+        pull_request_id: ${{ github.event.pull_request.number }}
+    repository: ${{ github.event.repository.full_name }}
